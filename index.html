@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodika - Meal Plan Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+    background-image: radial-gradient(circle, #ffcc00 10%, transparent 10%);
+    background-size: 40px 40px; /* The size of each dot */
+}
+
+        
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+        header {
+            padding: 2rem;
+            text-align: center;
+            background-color: #6200ea;
+            color: #fff;
+        }
+        section {
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #e05c5c;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #333;
+            color: white;
+            margin-top: 2rem;
+        }
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: scroll;
+            background-color: #f9f9f9;
+            margin-bottom: 1rem;
+        }
+        #chat-box div {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#preferences">Preferences</a>
+        <a href="#tracking">Track Snacks</a>
+        <a href="#generate">Generate Plan</a>
+        <a href="#advice">Health Advice</a>
+        <a href="#recipes">Recipes</a>
+    </nav>
+
+    <header>
+        <h1>Foodika</h1>
+        <p>Your Personalized Meal Plan Generator</p>
+    </header>
+
+    <section id="preferences">
+        <h2>Food Preferences</h2>
+        <form id="preferences-form">
+            <label for="preferred-foods">Enter your preferred foods (comma-separated):</label><br>
+            <input type="text" id="preferred-foods" name="preferred-foods" placeholder="e.g., chicken, rice, broccoli" required><br><br>
+
+            <label for="dietary-preferences">Dietary Preferences:</label><br>
+            <select id="dietary-preferences" name="dietary-preferences" required>
+                <option value="balanced">Balanced Diet</option>
+                <option value="low-carb">Low-Carb</option>
+                <option value="reduced-fat">Reduced Fat</option>
+                <option value="high-protein">High Protein</option>
+            </select><br><br>
+
+            <label for="duration">Meal Plan Duration:</label><br>
+            <select id="duration" name="duration" required>
+                <option value="week">1 Week</option>
+                <option value="month">1 Month</option>
+            </select><br><br>
+
+            <button type="button" onclick="savePreferences()">Save Preferences</button>
+        </form>
+    </section>
+
+    <section id="tracking">
+        <h2>Track Your Snacks</h2>
+        <form id="snack-tracking-form">
+            <label for="snack">What snack did you eat?</label><br>
+            <input type="text" id="snack" name="snack" placeholder="e.g., granola bar" required><br><br>
+            
+            <button type="button" onclick="addSnack()">Add Snack</button>
+        </form>
+        <ul id="snack-list">
+            <!-- Snack entries will appear here -->
+        </ul>
+    </section>
+
+    <section id="generate">
+        <h2>Generate Meal Plan</h2>
+        <button type="button" onclick="generateMealPlan()">Generate Plan</button>
+        <div id="meal-plan">
+            <!-- Generated meal plan will appear here -->
+        </div>
+    </section>
+    
+
+    <section id="advice">
+        <h2>Health and Diet Advice</h2>
+        <p>Find tips and advice for starting a diet, dealing with digestive issues, and improving your overall health:</p>
+        <div id="advice-content">
+            <p>Example: Drink plenty of water and eat fiber-rich foods to aid digestion.</p>
+            <p><em>More advice will be fetched dynamically from the internet in future updates.</em></p>
+        </div>
+    </section>
+
+    <section id="recipes">
+        <h2>Share Recipes</h2>
+        <div id="chat-box">
+            <!-- Chat messages will appear here -->
+        </div>
+        <form id="chat-form">
+            <label for="chat-message">Share your recipe:</label><br>
+            <input type="text" id="chat-message" name="chat-message" placeholder="e.g., Try this amazing pasta recipe!" required><br><br>
+            <button type="button" onclick="addChatMessage()">Send</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>Foodika &copy; 2025</p>
+    </footer>
+
+    <script>
+        let preferences = {};
+        let snacks = [];
+
+        function savePreferences() {
+            const preferredFoods = document.getElementById('preferred-foods').value;
+            const dietaryPreference = document.getElementById('dietary-preferences').value;
+            const duration = document.getElementById('duration').value;
+            preferences = { preferredFoods: preferredFoods.split(','), dietaryPreference, duration };
+            alert('Preferences saved!');
+        }
+
+        function addSnack() {
+            const snack = document.getElementById('snack').value;
+            const date = new Date().toLocaleDateString();
+            if (snack) {
+                snacks.push({ snack, date });
+                document.getElementById('snack-list').innerHTML += `<li>${snack} - ${date}</li>`;
+                document.getElementById('snack').value = '';
+            }
+        }
+
+        function generateMealPlan() {
+    if (!preferences.preferredFoods || preferences.preferredFoods.length === 0) {
+        alert('Please set your food preferences first!');
+        return;
+    }
+
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const meals = ['Breakfast', 'Lunch', 'Supper'];
+    const days = preferences.duration === 'week' ? 7 : 30; // Assuming 'week' for now
+
+    let plan = '<h3>Your Meal Plan:</h3>';
+    plan += '<table style="width: 100%; border-collapse: collapse;">';
+    plan += '<thead><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Supper</th></tr></thead><tbody>';
+
+    for (let i = 0; i < days; i++) {
+        const dayName = daysOfWeek[i % 7]; // Rotate through the days of the week
+        const dayMeals = meals.map(meal => {
+            // Just an example meal selection based on preferences
+            return preferences.preferredFoods[Math.floor(Math.random() * preferences.preferredFoods.length)] + ' - ' + preferences.dietaryPreference;
+        });
+
+        plan += `<tr>
+                    <td>${dayName}</td>
+                    <td>${dayMeals[0]}</td>
+                    <td>${dayMeals[1]}</td>
+                    <td>${dayMeals[2]}</td>
+                  </tr>`;
+    }
+
+    plan += '</tbody></table>';
+    document.getElementById('meal-plan').innerHTML = plan;
+}
+
+
+        function addChatMessage() {
+            const message = document.getElementById('chat-message').value;
+            if (message) {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML += `<div>${message}</div>`;
+                document.getElementById('chat-message').value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
+
